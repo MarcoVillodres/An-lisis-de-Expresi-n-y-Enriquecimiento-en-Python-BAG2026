@@ -8,6 +8,8 @@ __pycache__/
 #Logs and generated artifacts
 logs/*.log
 data/raw/*
+results/*
+
 
 #Keep folder structure
 !data/raw/.gitkeep
