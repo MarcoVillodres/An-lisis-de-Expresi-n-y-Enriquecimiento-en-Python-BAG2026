@@ -1,13 +1,10 @@
 # Análisis de Expresión Diferencial y Enriquecimiento
 
-Análisis de expresión diferencial de datos de RNA-seq (TCGA-BRCA) entre tumor primario
-y tejido normal con PyDESeq2, seguido de enriquecimiento funcional (GO Biological
-Process y Reactome) con gseapy. 
-
 Nombre del Estudiante: Marco Antonio Sánchez Villodres
 
 Lenguaje elegido: Python (3.12.16)
 
+**Repositorio:** https://github.com/<tu-usuario>/<tu-repositorio>
 
 ## 1. Instrucciones del proyecto
 
