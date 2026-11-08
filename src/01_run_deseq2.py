@@ -101,11 +101,11 @@ de_df.loc[de_df["gene_id"].isin(top10_down_tsv["gene_id"]), "top10_label"] = "to
 
 ##Generacion de las tablas conteniendo los subconjuntos de genes de interes analitico
 sig_df.to_csv( "results/deseq2_sig_padj_0.05.tsv", sep = "\t", index = True)
-de_df.to_csv( "results/dese2_de_padj_0.05_lfc_1.tsv", sep = "\t", index = True)
+de_df.to_csv( "results/deseq2_de_padj_0.05_lfc_1.tsv", sep = "\t", index = True)
 up_df.to_csv( "results/Up_genes.tsv", sep = "\t", index = True)
 down_df.to_csv( "results/Down_genes.tsv", sep = "\t", index = True)
-top10_up_tsv.to_csv ( "results/Top10_UP_genes.tsv", sep = "\t", index = True)
-top10_down_tsv.to_csv ( "results/Top10_DOWN_genes.tsv", sep = "\t", index = True)
+top10_up_tsv.to_csv ( "results/top10_up_genes.tsv", sep = "\t", index = True)
+top10_down_tsv.to_csv ( "results/top10_down_genes.tsv", sep = "\t", index = True)
 
 
 
@@ -125,13 +125,16 @@ top10_down_log2FoldChange = down_df_log2.head(10)
 plt.ion()
 fig, axs = plt.subplots(1, 2, figsize=(10, 4))
 axs[0].barh( y = top10_down_log2FoldChange["gene_id"], color= "#53A3FFFF", width=  top10_down_log2FoldChange["log2FoldChange"])
-axs[0].set_title("Top 10 down")
+axs[0].set_title("Down (Tumor < Normal)")
 axs[0].set_xlabel("log2FoldChange")
 axs[1].barh( y = top10_up_log2FoldChange["gene_id"], color= "#FC694CFF", width=  top10_up_log2FoldChange["log2FoldChange"])
-axs[1].set_title("Top 10 up")
+axs[1].set_title("Up (Tumor > Normal)")
 axs[1].set_xlabel("log2FoldChange")
 plt.tight_layout()
-plt.savefig("results/top_10_Up-Down.png", dpi=300)
+plt.suptitle("Top 10 Down- and Up-regulated Genes: Primary Tumor vs. Normal Tissue",
+             fontsize=12, fontweight="bold")
+plt.tight_layout(rect=[0, 0, 1, 0.93])
+plt.savefig("results/plot_top10_genes.png", dpi=300)
 plt.close("all")
 
 
@@ -159,6 +162,7 @@ plt.axvline(-lfc_threshold, linestyle = "--", color ="black", linewidth = 0.8)
 plt.axhline(-np.log10(alpha), linestyle="--", color="black", linewidth=0.8)
 
 ##Títulos
+plt.title("Volcano plot: Primary Solid Tumor vs. Solid Tissue Normal")
 plt.xlabel("log2 Fold Change")
 plt.ylabel("-log10(padj)")
 
@@ -172,13 +176,8 @@ for _, row in top10_label_forVolcano_df.iterrows():
 
 ##Adición de rejillas
 plt.grid(True, linewidth=0.3, color="lightgrey")
-plt.savefig("results/volcano_plot.png", dpi=300, bbox_inches="tight")
+plt.savefig("results/plot_volcano.png", dpi=300, bbox_inches="tight")
 plt.close()
-
-
-
-
-
 
 
 ##Generación del plot MA
@@ -193,19 +192,20 @@ plt.scatter(x = np.log10(datos_volcano_df["baseMean"]), y = datos_volcano_df["lo
 ##Adición del eje centrado en 0
 plt.axhline(0, linestyle="--", color="black", linewidth=0.8)
 
+plt.title("DESeq2 MA plot")
 plt.xlabel("Mean of normalized counts log10(baseMean)")
 plt.ylabel("log2FoldChange")
 
 ##Adición de la rejilla
 plt.grid(True, linewidth=0.3, color="lightgrey")
 
-plt.savefig("results/plot_MA.png", dpi=300, bbox_inches="tight")
+plt.savefig("results/plot_ma.png", dpi=300, bbox_inches="tight")
 plt.close()
 
 
 ##Se muestra el gen más signifitcativo, se incluyó el paso 5.7 junto con el 5.6 en el paso [6/8]
 gen_top_padj = f"Gen cuya variación de la expresión es más significativo: {de_df.iloc[0]['gene_id']} que presenta un log2FoldChange = {de_df.iloc[0]['log2FoldChange']} y un padj = {de_df.iloc[0]['padj']}"
-open("results/gen_top_padj.txt", "w").write(gen_top_padj)
+open("results/top_ge.txt", "w").write(gen_top_padj)
 
 
 print("[7/8] Enriquecimiento GO y Reactome...")
@@ -227,23 +227,23 @@ print([ñ for ñ in gp.get_library_name(organism="human") if "GO_Biological" in 
 ##y que no presenta la posibilidad filtrar los datos por q-valores.
 
 ##Análisis de GO en genes Up y Down mediante función
-def gseapy_enrich(Name_file, genes_constrast, gene_Set, universo = universo, alpha = alpha):
+def gseapy_enrich(Name_title, Name_file, genes_constrast, gene_Set, universo = universo, alpha = alpha):
     enricHH = gp.enrichr(gene_list = genes_constrast, gene_sets = gene_Set, organism = "human", background = universo, outdir = None)
 
     ##Cribado de los datos otenidos según padj
     enricHH_results =  enricHH.results[enricHH.results["Adjusted P-value"] < alpha]
 
     ##TSV y PNG
-    enricHH_results.to_csv(f"results/{Name_file}_results.tsv", sep="\t", index=False)
-    gp.dotplot(enricHH_results, column = "Adjusted P-value", top_term = 10, title = f"{Name_file} Significative", ofname=f"results/{Name_file}_results.png")  
+    enricHH_results.to_csv(f"results/{Name_file}.tsv", sep="\t", index=False)
+    gp.dotplot(enricHH_results, column = "Adjusted P-value", top_term = 10, title = f"{Name_title} Significative", ofname=f"results/plot_{Name_file}.png")  
     return(enricHH_results)
 
 
 ##Llamadas de la función
-gseapy_enrich("Go_Up1", genes_Up, "GO_Biological_Process_2026")
-gseapy_enrich("Go_Down1", genes_Down, "GO_Biological_Process_2026")
-gseapy_enrich("Reactome_Up1", genes_Up, "Reactome_Pathways_2024")
-gseapy_enrich("Reactome_Down1", genes_Down, "Reactome_Pathways_2024")
+gseapy_enrich("Go BP Up1","go_bp_up", genes_Up, "GO_Biological_Process_2026")
+gseapy_enrich("Go BP Down1","go_bp_down", genes_Down, "GO_Biological_Process_2026")
+gseapy_enrich("Reactome Up1","reactome_up", genes_Up, "Reactome_Pathways_2024")
+gseapy_enrich("Reactome Down1","reactome_down", genes_Down, "Reactome_Pathways_2024")
 
 
 print("[8/8] Guardando la trazabilidad de la sesión.....")
