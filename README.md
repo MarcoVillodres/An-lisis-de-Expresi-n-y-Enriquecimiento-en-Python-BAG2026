@@ -4,7 +4,7 @@ Nombre del Estudiante: Marco Antonio Sánchez Villodres
 
 Lenguaje elegido: Python (3.12.16)
 
-**Repositorio:** https://github.com/<tu-usuario>/<tu-repositorio>
+**Repositorio Git-Hub:** https://github.com/<tu-usuario>/<tu-repositorio>
 
 ## 1. Instrucciones del proyecto
 
@@ -14,6 +14,16 @@ Lenguaje elegido: Python (3.12.16)
 - **Miniconda3**.
 - **Conexión a internet**, gseapy consulta el servidor de Enrichr.
 - Datos de entrada en `data/raw/`: `counts.csv.gz` y `metadata.csv.gz`.
+
+### Consideraciones a tener en cuenta sobre los Datos de Entrada
+
+Los datos no están incluidos en el repositorio. Se distribuyen por separado
+en el aula virtual. Para ejecutar el análisis, descárgalos y colócalos en:
+
+- `data/raw/counts.csv.gz`
+- `data/raw/metadata.csv.gz`
+
+Conserva esos nombres y esa ruta, porque el script los lee desde ahí. La carpeta `data/raw/` existe en el repositorio para mantener la estructura. 
 
 ### Creación del entorno
 
