@@ -6,7 +6,7 @@ __pycache__/
 *.py[cod]
 
 #Logs and generated artifacts
-logs/*.log
+logs/*
 data/raw/*
 results/*
 
